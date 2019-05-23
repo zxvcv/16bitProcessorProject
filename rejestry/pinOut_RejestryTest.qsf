@@ -1,0 +1,64 @@
+#-----------CLK
+set_location_assignment PIN_AF14 -to inputClk
+
+#-----------SLIDERS
+set_location_assignment PIN_AE12 -to inputSbb[1]
+set_location_assignment PIN_AD10 -to inputSbb[0]
+set_location_assignment PIN_AC9 -to inputSba[1]
+set_location_assignment PIN_AE11 -to inputSba[0]
+set_location_assignment PIN_AD12 -to inputSid[1]
+set_location_assignment PIN_AD11 -to inputSid[0]
+set_location_assignment PIN_AF10 -to inputBA[1]
+set_location_assignment PIN_AF9 -to inputBA[0]
+set_location_assignment PIN_AC12 -to inputDI[1]
+set_location_assignment PIN_AB12 -to inputDI[0]
+
+
+#-----------HEX
+set_location_assignment PIN_AH28 -to outputDI[0]
+set_location_assignment PIN_AG28 -to outputDI[1]
+set_location_assignment PIN_AF28 -to outputDI[2]
+set_location_assignment PIN_AG27 -to outputDI[3]
+set_location_assignment PIN_AE28 -to outputDI[4]
+set_location_assignment PIN_AE27 -to outputDI[5]
+set_location_assignment PIN_AE26 -to outputDI[6]
+
+set_location_assignment PIN_AD27 -to outputBA[0]
+set_location_assignment PIN_AF30 -to outputBA[1]
+set_location_assignment PIN_AF29 -to outputBA[2]
+set_location_assignment PIN_AG30 -to outputBA[3]
+set_location_assignment PIN_AH30 -to outputBA[4]
+set_location_assignment PIN_AH29 -to outputBA[5]
+set_location_assignment PIN_AJ29 -to outputBA[6]
+
+set_location_assignment PIN_AC30 -to outputBB[0]
+set_location_assignment PIN_AC29 -to outputBB[1]
+set_location_assignment PIN_AD30 -to outputBB[2]
+set_location_assignment PIN_AC28 -to outputBB[3]
+set_location_assignment PIN_AD29 -to outputBB[4]
+set_location_assignment PIN_AE29 -to outputBB[5]
+set_location_assignment PIN_AB23 -to outputBB[6]
+
+set_location_assignment PIN_AB22 -to outputBC[0]
+set_location_assignment PIN_AB25 -to outputBC[1]
+set_location_assignment PIN_AB28 -to outputBC[2]
+set_location_assignment PIN_AC25 -to outputBC[3]
+set_location_assignment PIN_AD25 -to outputBC[4]
+set_location_assignment PIN_AC27 -to outputBC[5]
+set_location_assignment PIN_AD26 -to outputBC[6]
+
+set_location_assignment PIN_W25 -to outputADR[0]
+set_location_assignment PIN_V23 -to outputADR[1]
+set_location_assignment PIN_W24 -to outputADR[2]
+set_location_assignment PIN_W22 -to outputADR[3]
+set_location_assignment PIN_Y24 -to outputADR[4]
+set_location_assignment PIN_Y23 -to outputADR[5]
+set_location_assignment PIN_AA24 -to outputADR[6]
+
+set_location_assignment PIN_AA25 -to outputIRout[0]
+set_location_assignment PIN_AA26 -to outputIRout[1]
+set_location_assignment PIN_AB26 -to outputIRout[2]
+set_location_assignment PIN_AB27 -to outputIRout[3]
+set_location_assignment PIN_Y27 -to outputIRout[4]
+set_location_assignment PIN_AA28 -to outputIRout[5]
+set_location_assignment PIN_V25 -to outputIRout[6]

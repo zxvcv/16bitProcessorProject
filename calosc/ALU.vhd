@@ -42,7 +42,7 @@ begin
 			 when "1010" => res := "00000000000000000";
 			 when "1011" => res := AA + BB + CC;
 			 when "1100" => res := AA - BB - CC;
-			 when "1101" => res := AA + 1;
+			 when "1101" => res := AA + "00000000000000001"; -- dla testow "00001000000000000"
 			 when "1110" => res := shift_left(AA, 1);
 			 when "1111" => res := shift_right(AA, 1);
 			 res(15 downto 0) := AA(16 downto 1);
