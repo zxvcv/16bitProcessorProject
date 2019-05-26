@@ -45,7 +45,7 @@ begin
 			 when "1101" => res := AA + 1;
 			 when "1110" => res := shift_left(AA, 1);
 			 when "1111" => res := shift_right(AA, 1);
-			 res(15 downto 0) := AA(16 downto 1);
+			 --res(15 downto 0) := AA(16 downto 1);
          end case;
          Y <= res(15 downto 0);
          Z <= ZF; --zero
