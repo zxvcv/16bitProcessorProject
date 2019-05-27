@@ -17,8 +17,8 @@ end entity;
 architecture rtl of control is
 
 type state_type is (m0, m1, m10, m11, m12, m13, m14, m15, m16, m17, m20, m21, m22, m23, m24, m25, m26, m27, m28,
-m29, m30, m31, m32, m33, m34, m35, m36, m37, m38, m40, m41, m50, m60, m61, m62, m63, m64, m65, m66, m67, m68,
-m69, m70, m80, m81, m82, m83, m84, m9, m91, m92, m93, m94);
+m29, m30, m31, m32, m33, m34, m35, m36, m37, m38, m40, m41, m50, m51, m52, m53, m60, m61, m62, m63, m64, m65, m66, m67, m68,
+m70, m71, m72, m73, m74, m75, m76, m77, m78, m79, m80, m81, m82, m9, m91, m92, m93, m94);
 
 signal state : state_type;
 
@@ -69,11 +69,11 @@ begin
 					when "010" => --argument st16 w nastepnym  słowie
 						state <= m40; --JMP; JC; JZ; JS;
 					when "011" => --argument st32 w 2 nastepnych slowach
-						state <= m50;
+						state <= m50; --JMP
 					when "100" => --argument1 w R, argument2 w nastepnym słowie
-						state <= m60;
+						state <= m60; --odczyt st16
 					when "101" => --argument1 w R, argument2 w nastepnych 2 słowach
-						state <= m80;
+						state <= m70; --odczyt st32l
 					when others => 
 						state <= m0;
 				end case;
@@ -179,7 +179,43 @@ begin
 				if INT = '1' then state <= m9;
 				else state <= m0;
 				end if;
+			when m50 => state <= m51; --JMP (1/4)
+			when m51 => state <= m52; --JMP (2/4)
+			when m52 => state <= m53; --JMP (3/4)
+			when m53 => --JMP (4/4)
+				if INT = '1' then state <= m9;
+				else state <= m0;
+				end if;
+			when m60 => --wybor komendy
+				case IR(12 downto 10) is
+					when "000" => state <= m61; --MOV R, st16
+					when "001" => state <= m62; --MOV R, st(R)
+					when "010" => state <= m63; --ADD R, st16
+					when "011" => state <= m64; --SUB R, st16
+					when "100" => state <= m65; --CMP R, st16
+					when "101" => state <= m66; --AND R, st16
+					when "110" => state <= m67; --OR R, st16
+					when "111" => state <= m68; --XOR R, st16
+					when others => state <= m0;
+				end case;
+			when m70 => state <= m71; --odczyt st32h
+			when m71 => state <= m72; --odczyt MEM(st32)
+			when m72 => --wybor komendy
+				case IR(12 downto 9) is
+					when "0000" => state <= m73; --MOV R, MEM(st32)
+					when "0001" => state <= m74; --MOV MEM(st32), R
+					when "0010" => state <= m75; --ADD R, MEM(st32)
+					when "0011" => state <= m76; --SUB R, MEM(st32)
+					when "0100" => state <= m77; --CMP R, MEM(st32)
+					when "0101" => state <= m78; --AND R, MEM(st32)
+					when "0110" => state <= m79; --OR R, MEM(st32)
+					when "0111" => state <= m80; --XOR R, MEM(st32)
+					when "1000" => state <= m81; --IN
+					when "1001" => state <= m82; --OUT
+					when others => state <= m0;
+				end case;
 			...
+			when others => state <= m0;
         end case;
     end if;
 end process;
@@ -539,6 +575,291 @@ begin
 			--??
 			MIO <= '1'; INTA <= '0';
 			
+		when m50 => --JMP (1/4)
+			-- odczyt st32 (1/2)
+		
+			--ALU: powtarznie BB, brak bitow
+			Salu <= "0000"; LDF <= '0';
+			--REJESTRY: ATMPl := BA, BB <= DI, BC <= DI, PC++, ADR <= PC
+			Sba <= "1111"; Sbb <= "0000"; Sbc <= "0000"; Sid <= "001"; Sa <= "01";
+			--BUSINT: AD <= ADR, DI <= D
+			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m51 => --JMP (2/4)
+			-- odczyt st32 (2/2)
+		
+			--ALU: powtarznie BB, brak bitow
+			Salu <= "0000"; LDF <= '0';
+			--REJESTRY: ATMPh := BA, BB <= DI, BC <= DI, ADR <= PC
+			Sba <= "1110"; Sbb <= "0000"; Sbc <= "0000"; Sid <= "000"; Sa <= "01";
+			--BUSINT: AD <= ADR, DI <= D
+			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m52 => --JMP (3/4)
+			-- PC <- st32 (1/2)
+		
+			--ALU: powtarznie BB, brak bitow
+			Salu <= "0000"; LDF <= '0';
+			--REJESTRY: PCl := BA, BB <= ATMPl, BC <= DI, ADR <= AD
+			Sba <= "1011"; Sbb <= "1111"; Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m53 => --JMP (4/4)
+			-- PC <- st32 (2/2)
+		
+			--ALU: powtarznie BB, brak bitow
+			Salu <= "0000"; LDF <= '0';
+			--REJESTRY: PCh := BA, BB <= ATMPh, BC <= DI, ADR <= AD
+			Sba <= "1010"; Sbb <= "1110"; Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m60 => --przygotownie do komendy z argumentami R i st16
+			-- odczyt st16
+		
+			--ALU: powtarznie BB, brak bitow
+			Salu <= "0000"; LDF <= '0';
+			--REJESTRY: TMP := BA, BB <= DI, BC <= DI, PC++, ADR <= PC
+			Sba <= "0001"; Sbb <= "0000"; Sbc <= "0000"; Sid <= "001"; Sa <= "01";
+			--BUSINT: AD <= ADR, DI <= D
+			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m61 => --MOV R, st16
+			-- R <- st16
+		
+			--ALU: powtarznie BB, brak bitow
+			Salu <= "0000"; LDF <= '0';
+			--REJESTRY: R := BA, BB <= TMP, BC <= DI, ADR <= AD
+			Sba <= IR(3 downto 0); Sbb <= "0001"; Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m62 => --MOV R, st(R)
+			-- 
+		
+			--???
+			--co to jest st(R)
+			
+		when m63 => --ADD R, st16
+			-- R <- R + st16
+		
+			--ALU: Y <= BB + BC, brak bitow
+			Salu <= "0010"; LDF <= '0';
+			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
+			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m64 => --SUB R, st16
+			-- R <- R - st16
+		
+			--ALU: Y <= BB - BC, brak bitow
+			Salu <= "0011"; LDF <= '0';
+			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
+			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m65 => --CMP R, st16
+			-- R - st16; (ustawiane sa bity LDF)
+		
+			--ALU: Y <= BB - BC, ustawiane sa bity
+			Salu <= "0011"; LDF <= '1';
+			--REJESTRY: TMP := BA, BB <= R, BC <= TMP, ADR <= AD
+			Sba <= "0001"; Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m66 => --AND R, st16
+			-- R <= R && st16;
+		
+			--ALU: Y <= BB && BC, brak bitow
+			Salu <= "0101"; LDF <= '0';
+			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
+			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m67 => --OR R, st16
+			-- R <= R || st16;
+		
+			--ALU: Y <= BB || BC, brak bitow
+			Salu <= "0100"; LDF <= '0';
+			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
+			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m68 => --XOR R, st16
+			-- R <= R xor st16;
+		
+			--ALU: Y <= BB xor BC, brak bitow
+			Salu <= "0110"; LDF <= '0';
+			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
+			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= TMP; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m70 => --przygotownie do komendy z argumentami R i st32 (1/3)
+			-- odczyt st32l
+		
+			--ALU: powtarznie BB, brak bitow
+			Salu <= "0000"; LDF <= '0';
+			--REJESTRY: ATMPl := BA, BB <= DI, BC <= DI, PC++, ADR <= PC
+			Sba <= "1111"; Sbb <= "0000"; Sbc <= "0000"; Sid <= "001"; Sa <= "01";
+			--BUSINT: AD <= ADR, DI <= D
+			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m71 => --przygotownie do komendy z argumentami R i st32 (2/3)
+			-- odczyt st32h
+		
+			--ALU: powtarznie BB, brak bitow
+			Salu <= "0000"; LDF <= '0';
+			--REJESTRY: ATMPh := BA, BB <= DI, BC <= DI, ADR <= PC
+			Sba <= "1110"; Sbb <= "0000"; Sbc <= "0000"; Sid <= "000"; Sa <= "01";
+			--BUSINT: AD <= ADR, DI <= D
+			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m72 => --przygotownie do komendy z argumentami R i st32 (3/3)
+			-- odczyt MEM(st32)
+		
+			--ALU: powtarznie BB, brak bitow
+			Salu <= "0000"; LDF <= '0';
+			--REJESTRY: TMP := BA, BB <= DI, BC <= DI, ADR <= ATMP
+			Sba <= "0001"; Sbb <= "0000"; Sbc <= "0000"; Sid <= "000"; Sa <= "11";
+			--BUSINT: AD <= ADR, DI <= D
+			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m73 => --MOV R, MEM(st32)
+			--  R <- MEM(st32)
+		
+			--ALU: powtarznie BB, brak bitow
+			Salu <= "0000"; LDF <= '0';
+			--REJESTRY: R := BA, BB <= TMP, BC <= DI, ADR <= AD
+			Sba <= IR(3 downto 0); Sbb <= "0001"; Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m74 => --MOV MEM(st32), R
+			-- 
+		
+			--?????????
+			
+		when m75 => --ADD R, MEM(st32)
+			-- R <- R + MEM(st32)
+		
+			--ALU: Y <= BB + BC, brak bitow
+			Salu <= "0010"; LDF <= '0';
+			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
+			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m76 => --SUB R, MEM(st32)
+			-- R <- R - MEM(st32)
+		
+			--ALU: Y <= BB - BC, brak bitow
+			Salu <= "0011"; LDF <= '0';
+			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
+			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m77 => --CMP R, MEM(st32)
+			-- R - MEM(st32); (ustawiane sa bity LDF)
+		
+			--ALU: Y <= BB - BC, ustawiane sa bity
+			Salu <= "0011"; LDF <= '1';
+			--REJESTRY: TMP := BA, BB <= R, BC <= TMP, ADR <= AD
+			Sba <= "0001"; Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m78 => --AND R, MEM(st32)
+			-- R <= R && MEM(st32);
+		
+			--ALU: Y <= BB && BC, brak bitow
+			Salu <= "0101"; LDF <= '0';
+			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
+			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m79 => --OR R, MEM(st32)
+			-- R <= R || MEM(st32);
+		
+			--ALU: Y <= BB || BC, brak bitow
+			Salu <= "0100"; LDF <= '0';
+			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
+			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m80 => --XOR R, MEM(st32)
+			-- R <= R xor MEM(st32);
+		
+			--ALU: Y <= BB xor BC, brak bitow
+			Salu <= "0110"; LDF <= '0';
+			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
+			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= TMP; Sid <= "000"; Sa <= "00";
+			--BUSINT: bez zmian, D w stanie "Z"
+			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
+			--??
+			MIO <= '1'; INTA <= '0';
+			
+		when m81 => --IN
+			-- 
+		
+			--????????????
+			
+		when m82 => --OUT
+			-- 
+		
+			--????????????
+		
 		...
         when others =>
 			-- nothing
