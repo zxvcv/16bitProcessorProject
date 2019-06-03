@@ -5,16 +5,13 @@ use ieee.numeric_std.all;
 
 entity busintTest is
 	port (
-			inputADR : in signed(1 downto 0);
-			inputDO : in signed(1 downto 0);
+			inputADR : in signed(2 downto 0);
+			inputDO : in signed(2 downto 0);
 			inputSmar : in bit;
 			inputSmbr : in bit;
 			inputWRin : in bit;
 			inputRDin : in bit;
-			
-			outputAD : out bit_vector (0 to 6);
-			inputD : in signed (1 downto 0);
-			outputD : out bit_vector (0 to 6);
+
 			outputDI : out bit_vector (0 to 6);
 			outputWR : out bit;
 			outputRD : out bit;
@@ -47,38 +44,44 @@ architecture behaviour of busintTest is
 			WR, RD : out bit
 		);
 	end component;
+	
+	component memory is
+	port
+	(
+		mADR : in signed(31 downto 0);
+		mD : inout signed (15 downto 0);
+		mWR, mRD : in bit
+	);
+	end component;
 	--component end
 
 	signal s_ADR : signed(31 downto 0); --wszystkie bity na 0 oprocz 2 najmniej znaczacych (slidery)
 	signal s_DO : signed(15 downto 0); --wszystkie bity na 0 oprocz 2 najmniej znaczacych (slidery)
 	signal s_AD : signed (31 downto 0);
-	signal s_D : signed (15 downto 0); --wszystkie bity na 0 oprocz 2 najmniej znaczacych (slidery)
+	signal s_D : signed (15 downto 0);
 	signal s_DI : signed(15 downto 0);
 	signal s_WR : bit;
 	signal s_RD : bit;
 	
 	signal s_out_ADR : bit_vector (3 downto 0);
-	signal s_out_AD : bit_vector (3 downto 0);
 	signal s_out_DO : bit_vector (3 downto 0);
 	signal s_out_DI : bit_vector (3 downto 0);
-	signal s_out_D : bit_vector (3 downto 0);
 	
 	
 begin
    
-    s_ADR (31 downto 2) <= "000000000000000000000000000000"; s_ADR (1 downto 0) <= inputADR;
-	s_DO (15 downto 2) <= "00000000000000"; s_DO (1 downto 0) <= inputDO;
+    s_ADR (31 downto 3) <= "00000000000000000000000000000"; s_ADR (2 downto 0) <= inputADR;
+	s_DO (15 downto 3) <= "0000000000000"; s_DO (2 downto 0) <= inputDO;
 	
 	--wyjsiowe sygnaly na hex
 	s_out_ADR <= to_bitvector(std_logic_vector(s_ADR (3 downto 0)));
-	s_out_AD <= to_bitvector(std_logic_vector(s_AD (3 downto 0)));
 	s_out_DO <= to_bitvector(std_logic_vector(s_DO (3 downto 0)));
 	s_out_DI <= to_bitvector(std_logic_vector(s_DI (3 downto 0)));
-	s_out_D <= to_bitvector(std_logic_vector(s_D (3 downto 0)));
 	
 	outputRD <= s_RD;
 	outputWR <= s_WR;
-
+	
+	
 	--jednostka Rejestry
 	GateRej : busint 
 		port map (
@@ -94,17 +97,19 @@ begin
 			WR => s_WR,
 			RD => s_RD
 		);
-
+	
+	GateMem : memory
+		port map (
+			mADR => s_AD,
+			mD => s_D,
+			mWR => s_WR,
+			mRD => s_RD
+		);
+	
 	GateHexADR : dekoder
 		port map (
 			i => s_out_ADR,
 			o => outputADR
-		);
-	
-	GateHexAD : dekoder
-		port map (
-			i => s_out_AD,
-			o => outputAD
 		);
 		
 	GateHexDO : dekoder
@@ -118,17 +123,11 @@ begin
 			i => s_out_DI,
 			o => outputDI
 		);
-		
-	GateHexD: dekoder
-		port map (
-			i => s_out_D,
-			o => outputD
-		);
-		
-	process(s_WR, s_RD)
-	begin
-		if(s_RD='1') then s_D (15 downto 2) <= "00000000000000"; s_D (1 downto 0) <= inputD; end if;
-		if(s_WR='1') then s_D (15 downto 0) <= "ZZZZZZZZZZZZZZZZ"; end if;
-	end process;
+	
+	--process(s_WR, s_RD)
+	--begin
+	--	if(s_RD='1') then s_D (15 downto 2) <= "00000000000000"; s_D (1 downto 0) <= inputD; end if;
+	--	if(s_WR='1') then s_D (15 downto 0) <= "ZZZZZZZZZZZZZZZZ"; end if;
+	--end process;
 	
 end behaviour;

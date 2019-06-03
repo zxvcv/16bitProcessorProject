@@ -18,8 +18,8 @@ end entity;
 architecture rtl of busint is
 begin
    process(Smar, ADR, Smbr, DO, D, WRin, RDin)
-           variable MBRin, MBRout: signed(15 downto 0);
-           variable MAR : signed(31 downto 0);
+           variable MBRin, MBRout: signed(15 downto 0) := (others => '0');
+           variable MAR : signed(31 downto 0) := (others => '0');
    begin
         if(Smar='1') then MAR := ADR; end if;
         if(Smbr='1') then MBRout := DO; end if;
