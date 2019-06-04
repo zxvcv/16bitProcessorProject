@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity Rejestry is
    port
    (
-        clk : in bit;
+        clk : in std_logic;
         DI : in signed (15 downto 0);
         BA : in signed (15 downto 0);
 		Sba : in bit_vector (3 downto 0);

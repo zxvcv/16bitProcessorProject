@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
  
 entity control is
 port(
-    clk : in std_logic;
+    clk : in bit;
     IR : in signed(15 downto 0);
     reset, C, Z, S, INT : in std_logic;
     Salu, Sbb, Sbc, Sba : out bit_vector(3 downto 0);
@@ -21,8 +21,11 @@ m29, m30, m31, m32, m33, m34, m35, m36, m37, m38, m40, m41, m50, m51, m52, m53, 
 m70, m71, m72, m73, m74, m75, m76, m77, m78, m79, m80, m81, m82, m9, m91, m92, m93, m94);
 
 signal state : state_type;
+signal s_IR : bit_vector(15 downto 0);
 
 begin
+
+s_IR <= to_bitvector(std_logic_vector(IR));
 
 process (clk, reset)
 begin
@@ -43,6 +46,8 @@ begin
 							when "01" => state <= m10; --WAIT
 							when "10" => state <= m11; --CALL
 							when "11" => state <= m15; --RET
+							when others => 
+								state <= m0;
 						end case;
 					when "001" => --argumenty w R
 						case IR(12 downto 8) is
@@ -168,15 +173,15 @@ begin
 				else state <= m0;
 				end if;
 			when m40 => --JMP; JC; JZ; JS; (1/2)
-				if(IR(12 downto 11) = "00") state <= m41; 
-				else if(IR(12 downto 11) = "01" and C) then state <= m41; 
-				else if(IR(12 downto 11) = "10" and Z) then state <= m41; 
-				else if(IR(12 downto 11) = "11" and S) then state <= m41; 
-				else if (INT) then state <= m9; 
+				if(IR(12 downto 11) = "00") then state <= m41; 
+				else if(IR(12 downto 11) = "01" and C='1') then state <= m41; 
+				else if(IR(12 downto 11) = "10" and Z='1') then state <= m41; 
+				else if(IR(12 downto 11) = "11" and S='1') then state <= m41; 
+				else if (INT='1') then state <= m9; 
 				else state <= m0;
-				end if;
+				end if; end if; end if; end if; end if;
 			when m41 => --JMP; JC; JZ; JS; (2/2)
-				if INT = '1' then state <= m9;
+				if(INT = '1') then state <= m9;
 				else state <= m0;
 				end if;
 			when m50 => state <= m51; --JMP (1/4)
@@ -422,7 +427,7 @@ begin
 			--ALU: powtarznie BB, brak bitow
 			Salu <= "0000"; LDF <= '0';
 			--REJESTRY: IR := BA, BB <= R, BC <= DI, SP--, ADR <= SP
-			Sba <= "0000"; Sbb <= IR(3 downto 0); Sbc <= "0000"; Sid <= "011"; Sa <= "10";
+			Sba <= "0000"; Sbb <= s_IR(3 downto 0); Sbc <= "0000"; Sid <= "011"; Sa <= "10";
 			--BUSINT: MAR := ADR, D <= DO
 			Smar <= '1'; Smbr <= '1'; WR <= '1'; RD <= '0';
 			--??
@@ -446,7 +451,7 @@ begin
 			--ALU: powtarznie BB, brak bitow
 			Salu <= "0000"; LDF <= '0';
 			--REJESTRY: IR := R, BB <= DI, BC <= DI, ADR <= SP
-			Sba <= IR(3 downto 0); Sbb <= "0000"; Sbc <= "0000"; Sid <= "000"; Sa <= "10";
+			Sba <= s_IR(3 downto 0); Sbb <= "0000"; Sbc <= "0000"; Sid <= "000"; Sa <= "10";
 			--BUSINT: AD <= ADR, DI <= D
 			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
 			--??
@@ -458,7 +463,7 @@ begin
 			--ALU: Y <= -BB, brak bitow
 			Salu <= "1001"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= DI, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -470,7 +475,7 @@ begin
 			--ALU: Y <= not BB, brak bitow
 			Salu <= "1000"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= DI, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -488,7 +493,7 @@ begin
 			--ALU: Y <= BB++, brak bitow
 			Salu <= "1101"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= DI, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -500,7 +505,7 @@ begin
 			--ALU: Y <= BB>>1, brak bitow
 			Salu <= "1111"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= DI, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -512,7 +517,7 @@ begin
 			--ALU: Y <= BB<<1, brak bitow
 			Salu <= "1110"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= DI, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -524,7 +529,7 @@ begin
 			--ALU: powtarznie BB, brak bitow
 			Salu <= "0000"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= RM, BC <= DI, ADR <= AD
-			Sba <= IR(7 downto 4); Sbb <= IR(3 downto 0); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(7 downto 4); Sbb <= s_IR(3 downto 0); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -536,7 +541,7 @@ begin
 			--ALU: powtarznie BB, brak bitow
 			Salu <= "0000"; LDF <= '0';
 			--REJESTRY: RM := BA, BB <= R, BC <= DI, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(7 downto 4); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(7 downto 4); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -548,7 +553,7 @@ begin
 			--ALU: Y <= BB + BC, brak bitow
 			Salu <= "0010"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= RM, ADR <= AD
-			Sba <= IR(7 downto 4); Sbb <= IR(7 downto 4); Sbc <= IR(3 downto 0); Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(7 downto 4); Sbb <= s_IR(7 downto 4); Sbc <= s_IR(3 downto 0); Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -560,7 +565,7 @@ begin
 			--ALU: Y <= BB - BC, brak bitow
 			Salu <= "0011"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= RM, ADR <= AD
-			Sba <= IR(7 downto 4); Sbb <= IR(7 downto 4); Sbc <= IR(3 downto 0); Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(7 downto 4); Sbb <= s_IR(7 downto 4); Sbc <= s_IR(3 downto 0); Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -572,7 +577,7 @@ begin
 			--ALU: Y <= BB - BC, ustawiane sa bity
 			Salu <= "0011"; LDF <= '1';
 			--REJESTRY: TMP := BA, BB <= R, BC <= RM, ADR <= AD
-			Sba <= "0001"; Sbb <= IR(7 downto 4); Sbc <= IR(3 downto 0); Sid <= "000"; Sa <= "00";
+			Sba <= "0001"; Sbb <= s_IR(7 downto 4); Sbc <= s_IR(3 downto 0); Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -584,7 +589,7 @@ begin
 			--ALU: Y <= BB && BC, brak bitow
 			Salu <= "0101"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= RM, ADR <= AD
-			Sba <= IR(7 downto 4); Sbb <= IR(7 downto 4); Sbc <= IR(3 downto 0); Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(7 downto 4); Sbb <= s_IR(7 downto 4); Sbc <= s_IR(3 downto 0); Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -596,7 +601,7 @@ begin
 			--ALU: Y <= BB || BC, brak bitow
 			Salu <= "0100"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= RM, ADR <= AD
-			Sba <= IR(7 downto 4); Sbb <= IR(7 downto 4); Sbc <= IR(3 downto 0); Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(7 downto 4); Sbb <= s_IR(7 downto 4); Sbc <= s_IR(3 downto 0); Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -608,7 +613,7 @@ begin
 			--ALU: Y <= BB xor BC, brak bitow
 			Salu <= "0110"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= RM, ADR <= AD
-			Sba <= IR(7 downto 4); Sbb <= IR(7 downto 4); Sbc <= IR(3 downto 0); Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(7 downto 4); Sbb <= s_IR(7 downto 4); Sbc <= s_IR(3 downto 0); Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -714,7 +719,7 @@ begin
 			--ALU: powtarznie BB, brak bitow
 			Salu <= "0000"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= TMP, BC <= DI, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= "0001"; Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= "0001"; Sbc <= "0000"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -732,7 +737,7 @@ begin
 			--ALU: Y <= BB + BC, brak bitow
 			Salu <= "0010"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -744,7 +749,7 @@ begin
 			--ALU: Y <= BB - BC, brak bitow
 			Salu <= "0011"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -756,7 +761,7 @@ begin
 			--ALU: Y <= BB - BC, ustawiane sa bity
 			Salu <= "0011"; LDF <= '1';
 			--REJESTRY: TMP := BA, BB <= R, BC <= TMP, ADR <= AD
-			Sba <= "0001"; Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			Sba <= "0001"; Sbb <= s_IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -768,7 +773,7 @@ begin
 			--ALU: Y <= BB && BC, brak bitow
 			Salu <= "0101"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -780,7 +785,7 @@ begin
 			--ALU: Y <= BB || BC, brak bitow
 			Salu <= "0100"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -792,7 +797,7 @@ begin
 			--ALU: Y <= BB xor BC, brak bitow
 			Salu <= "0110"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= TMP; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -840,7 +845,7 @@ begin
 			--ALU: powtarznie BB, brak bitow
 			Salu <= "0000"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= TMP, BC <= DI, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= "0001"; Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= "0001"; Sbc <= "0000"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -857,7 +862,7 @@ begin
 			--ALU: Y <= BB + BC, brak bitow
 			Salu <= "0010"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -869,7 +874,7 @@ begin
 			--ALU: Y <= BB - BC, brak bitow
 			Salu <= "0011"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -881,7 +886,7 @@ begin
 			--ALU: Y <= BB - BC, ustawiane sa bity
 			Salu <= "0011"; LDF <= '1';
 			--REJESTRY: TMP := BA, BB <= R, BC <= TMP, ADR <= AD
-			Sba <= "0001"; Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			Sba <= "0001"; Sbb <= s_IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -893,7 +898,7 @@ begin
 			--ALU: Y <= BB && BC, brak bitow
 			Salu <= "0101"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -905,7 +910,7 @@ begin
 			--ALU: Y <= BB || BC, brak bitow
 			Salu <= "0100"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -917,7 +922,7 @@ begin
 			--ALU: Y <= BB xor BC, brak bitow
 			Salu <= "0110"; LDF <= '0';
 			--REJESTRY: R := BA, BB <= R, BC <= TMP, ADR <= AD
-			Sba <= IR(3 downto 0); Sbb <= IR(3 downto 0); Sbc <= TMP; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0001"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
