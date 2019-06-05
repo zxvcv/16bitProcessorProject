@@ -28,7 +28,7 @@ begin
 			--variable AD, PC, SP, ATMP : signed (31 downto 0);
 			variable AD : signed (31 downto 0) := "00000000000000000000000000000000";
 			variable PC : signed (31 downto 0) := "00000000000000000000000000000000";
-			variable SP : signed (31 downto 0) := "00000000000000000000000000000000";
+			variable SP : signed (31 downto 0) := "00000000000000000000000000011110";
 			variable ATMP : signed (31 downto 0) := "00000000000000000000000000000000";
 		begin
 			if (clk'event and clk='1') then

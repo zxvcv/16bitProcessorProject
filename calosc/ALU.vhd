@@ -68,8 +68,8 @@ begin
          
 		 Y <= res(15 downto 0);
          Z <= ZF; --zero
-         S <= SF; --parzystosc
-         C <= CF; --przesuniece
+         S <= SF; --znak
+         C <= CF; --przeniesienie
          
   end process;
 end rtl;

@@ -60,7 +60,7 @@ begin
 							when "00110" => state <= m27; --SHR R
 							when "00111" => state <= m28; --SHL R
 							when "01000" => state <= m29; --MOV R, RM
-							when "01001" => state <= m30; --MOV RM, R
+							when "01001" => state <= m30; --MOVR RM, R
 							when "01010" => state <= m31; --ADD R, RM
 							when "01011" => state <= m32; --SUB R, RM
 							when "01100" => state <= m33; --CMP R, RM
@@ -318,8 +318,8 @@ begin
 		
 			--ALU: powtarzanie BB, brak bitow
 			Salu <= "0000"; LDF <= '0';
-			--REJESTRY: IR := BA, BB <= DI, BC <= DI, ADR <= AD
-			Sba <= "0000"; Sbb <= "0000"; Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			--REJESTRY: TMP := BA, BB <= DI, BC <= DI, ADR <= AD
+			Sba <= "0001"; Sbb <= "0000"; Sbc <= "0000"; Sid <= "000"; Sa <= "00";
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
@@ -427,7 +427,7 @@ begin
 			--ALU: powtarznie BB, brak bitow
 			Salu <= "0000"; LDF <= '0';
 			--REJESTRY: IR := BA, BB <= R, BC <= DI, SP--, ADR <= SP
-			Sba <= "0000"; Sbb <= s_IR(3 downto 0); Sbc <= "0000"; Sid <= "011"; Sa <= "10";
+			Sba <= "0001"; Sbb <= s_IR(3 downto 0); Sbc <= "0000"; Sid <= "011"; Sa <= "10";
 			--BUSINT: MAR := ADR, D <= DO
 			Smar <= '1'; Smbr <= '1'; WR <= '1'; RD <= '0';
 			--??
@@ -636,7 +636,7 @@ begin
 			--ALU: Y <= BB, brak bitow
 			Salu <= "0000"; LDF <= '0';
 			--REJESTRY: IR := BA, BB <= DI, BC <= DI, ADR <= AD
-			Sba <= s_IR(7 downto 4); Sbb <= s_IR(7 downto 4); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
+			Sba <= s_IR(3 downto 0); Sbb <= s_IR(3 downto 0); Sbc <= "0000"; Sid <= "000"; Sa <= "00";
 			--BUSINT: D <= DO, dane na port wyjsciowy
 			Smar <= '0'; Smbr <= '1'; WR <= '0'; RD <= '0';
 			--??
@@ -833,8 +833,8 @@ begin
 		
 			--ALU: powtarznie BB, brak bitow
 			Salu <= "0000"; LDF <= '0';
-			--REJESTRY: ATMPh := BA, BB <= DI, BC <= DI, ADR <= PC
-			Sba <= "1110"; Sbb <= "0000"; Sbc <= "0000"; Sid <= "000"; Sa <= "01";
+			--REJESTRY: ATMPh := BA, BB <= DI, BC <= DI, PC++, ADR <= PC
+			Sba <= "1110"; Sbb <= "0000"; Sbc <= "0000"; Sid <= "001"; Sa <= "01";
 			--BUSINT: AD <= ADR, DI <= D
 			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
 			--??
