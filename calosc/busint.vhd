@@ -7,7 +7,7 @@ port
 (
     ADR : in signed(31 downto 0);
     DO : in signed(15 downto 0);
-    Smar, Smbr, WRin, RDin : in bit;
+    Smar, Smbr, WRin, RDin, MIO : in bit;
     AD : out signed (31 downto 0);
     D : inout signed (15 downto 0);
     DI : out signed(15 downto 0);
@@ -24,7 +24,7 @@ begin
         if(Smar='1') then MAR := ADR; end if;
         if(Smbr='1') then MBRout := DO; end if;
         if (RDin='1') then MBRin := D; end if;
-        if (WRin='1') then D <= MBRout;
+        if (WRin='1' or MIO='1') then D <= MBRout;
         else D <= "ZZZZZZZZZZZZZZZZ";
         end if;
  

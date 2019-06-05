@@ -72,7 +72,7 @@ architecture behaviour of caloscTest is
 		(
 			ADR : in signed(31 downto 0);
 			DO : in signed(15 downto 0);
-			Smar, Smbr, WRin, RDin : in bit;
+			Smar, Smbr, WRin, RDin, MIO : in bit;
 			AD : out signed (31 downto 0);
 			D : inout signed (15 downto 0);
 			DI : out signed(15 downto 0);
@@ -203,6 +203,7 @@ begin
 			Smbr => s_Smbr,
 			WRin => s_WR,
 			RDin => s_RD,
+			MIO => s_MIO,
 			AD => s_ADRmem,
 			D => s_D,
 			DI => s_DI,

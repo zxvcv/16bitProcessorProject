@@ -30,7 +30,7 @@ begin
          CC(16 downto 1) := "0000000000000000";
          case Salu is
              when "0000" => res := AA; 
-             when "0001" => res := BB;
+             when "0001" => res := AA - 1;
              when "0010" => res := AA + BB;
              when "0011" => res := AA - BB;
              when "0100" => res := AA or BB;
