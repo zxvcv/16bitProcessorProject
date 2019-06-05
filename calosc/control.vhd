@@ -323,7 +323,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
         when m10 => --WAIT
 			--
@@ -335,7 +335,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 
         when m11 => --CALL (1/4)
 			-- MAR <- SP; MBR <- PCh; SP <- SP - 1;
@@ -347,7 +347,7 @@ begin
 			--BUSINT: MAR := ADR, D <= DO
 			Smar <= '1'; Smbr <= '1'; WR <= '1'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m12 => --CALL (2/4)
 			-- MAR <- SP; MBR <- PCl; SP <- SP - 1;
@@ -359,7 +359,7 @@ begin
 			--BUSINT: MAR := ADR, D <= DO
 			Smar <= '1'; Smbr <= '1'; WR <= '1'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
         
 		when m13 => --CALL (3/4)
 			-- PCh <- ADh
@@ -371,7 +371,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 		
 		when m14 => --CALL (4/4)
 			-- PCl <- ADl
@@ -383,7 +383,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 		
 		when m15 => --RET (1/3)
 			-- SP <- SP + 1
@@ -395,7 +395,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m16 => --RET (2/3)
 			-- MAR <- SP; PCl <- MBR; SP <- SP + 1;
@@ -407,7 +407,7 @@ begin
 			--BUSINT: AD <= ADR, DI <= D
 			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m17 => --RET (3/3)
 			-- MAR <- SP; PCh <- MBR;
@@ -419,7 +419,7 @@ begin
 			--BUSINT: AD <= ADR, DI <= D
 			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m20 => --PUSH R
 			-- MEM(SP) <- R; SP--;
@@ -431,7 +431,7 @@ begin
 			--BUSINT: MAR := ADR, D <= DO
 			Smar <= '1'; Smbr <= '1'; WR <= '1'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m21 => --POP R (1/2)
 			-- SP++;
@@ -443,7 +443,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 		
 		when m22 => --POP R (2/2)
 			-- R <- MEM(SP);
@@ -455,7 +455,7 @@ begin
 			--BUSINT: AD <= ADR, DI <= D
 			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m23 => --NEG R
 			-- R <- (-R);
@@ -467,7 +467,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m24 => --NOT R
 			-- R <- (~R);
@@ -479,7 +479,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m25 => --DEC R
 			--  R <- R--;
@@ -497,7 +497,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 		
 		when m27 => --SHR R
 			-- R <- R>>1;
@@ -509,7 +509,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 		
 		when m28 => --SHL R
 			-- R <- R<<1;
@@ -521,7 +521,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 		
 		when m29 => --MOV R, RM
 			--  R <- RM
@@ -533,7 +533,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m30 => --MOV RM, R
 			-- RM <- R
@@ -545,7 +545,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m31 => --ADD R, RM
 			-- R <- R + RM
@@ -557,7 +557,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m32 => --SUB R, RM
 			-- R <- R - RM
@@ -569,7 +569,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m33 => --CMP R, RM
 			-- R - RM; (ustawiane sa bity LDF)
@@ -581,7 +581,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m34 => --AND R, RM
 			-- R <= R && RM;
@@ -593,7 +593,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 		
 		when m35 => --OR R, RM
 			-- R <= R || RM;
@@ -605,7 +605,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m36 => --XOR R, RM
 			-- R <= R xor RM;
@@ -617,7 +617,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m37 => --IN R, IO(AD)
 			-- 
@@ -639,7 +639,7 @@ begin
 			--BUSINT: AD <= ADR, DI <= D
 			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m41 => --JMP; JC; JZ; JS; (2/2)
 			-- PC <- PC + st16
@@ -651,7 +651,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m50 => --JMP (1/4)
 			-- odczyt st32 (1/2)
@@ -663,7 +663,7 @@ begin
 			--BUSINT: AD <= ADR, DI <= D
 			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m51 => --JMP (2/4)
 			-- odczyt st32 (2/2)
@@ -675,7 +675,7 @@ begin
 			--BUSINT: AD <= ADR, DI <= D
 			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m52 => --JMP (3/4)
 			-- PC <- st32 (1/2)
@@ -687,7 +687,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m53 => --JMP (4/4)
 			-- PC <- st32 (2/2)
@@ -699,7 +699,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m60 => --przygotownie do komendy z argumentami R i st16
 			-- odczyt st16
@@ -723,7 +723,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m62 => --MOV R, st(R)
 			-- 
@@ -741,7 +741,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m64 => --SUB R, st16
 			-- R <- R - st16
@@ -753,7 +753,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m65 => --CMP R, st16
 			-- R - st16; (ustawiane sa bity LDF)
@@ -765,7 +765,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m66 => --AND R, st16
 			-- R <= R && st16;
@@ -777,7 +777,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m67 => --OR R, st16
 			-- R <= R || st16;
@@ -789,7 +789,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m68 => --XOR R, st16
 			-- R <= R xor st16;
@@ -801,7 +801,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m70 => --przygotownie do komendy z argumentami R i st32 (1/3)
 			-- odczyt st32l
@@ -813,7 +813,7 @@ begin
 			--BUSINT: AD <= ADR, DI <= D
 			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m71 => --przygotownie do komendy z argumentami R i st32 (2/3)
 			-- odczyt st32h
@@ -825,7 +825,7 @@ begin
 			--BUSINT: AD <= ADR, DI <= D
 			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m72 => --przygotownie do komendy z argumentami R i st32 (3/3)
 			-- odczyt MEM(st32)
@@ -837,7 +837,7 @@ begin
 			--BUSINT: AD <= ADR, DI <= D
 			Smar <= '1'; Smbr <= '0'; WR <= '0'; RD <= '1';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m73 => --MOV R, MEM(st32)
 			--  R <- MEM(st32)
@@ -849,7 +849,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m74 => --MOV MEM(st32), R
 			-- 
@@ -866,7 +866,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m76 => --SUB R, MEM(st32)
 			-- R <- R - MEM(st32)
@@ -878,7 +878,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m77 => --CMP R, MEM(st32)
 			-- R - MEM(st32); (ustawiane sa bity LDF)
@@ -890,7 +890,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m78 => --AND R, MEM(st32)
 			-- R <= R && MEM(st32);
@@ -902,7 +902,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m79 => --OR R, MEM(st32)
 			-- R <= R || MEM(st32);
@@ -914,7 +914,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m80 => --XOR R, MEM(st32)
 			-- R <= R xor MEM(st32);
@@ -926,7 +926,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 			
 		when m81 => --IN
 			-- 
@@ -948,7 +948,7 @@ begin
 			--BUSINT: bez zmian, D w stanie "Z"
 			Smar <= '0'; Smbr <= '0'; WR <= '0'; RD <= '0';
 			--??
-			MIO <= '1'; INTA <= '0';
+			MIO <= '0'; INTA <= '0';
 	    
     end case;
 end process;

@@ -7,7 +7,11 @@ entity caloscTest is
 	port (
 		inputClk : in bit;
 		inputINT : in std_logic;
-		inputReset : in std_logic
+		inputReset : in std_logic;
+		outputPORT0 : out bit_vector (0 to 6);
+		outputPORT1 : out bit_vector (0 to 6);
+		outputPORT2 : out bit_vector (0 to 6);
+		outputPORT3 : out bit_vector (0 to 6)
     );
 end caloscTest;
  
@@ -84,6 +88,15 @@ architecture behaviour of caloscTest is
 		mWR, mRD : in bit
 	);
 	end component;
+	
+	component outPORT is
+	port
+	(
+		D : inout signed (15 downto 0);
+		MIO : in bit;
+		outP : out signed (15 downto 0)
+	);
+	end component;
 	--component end
 
 	--signal s_ADR : signed(31 downto 0);
@@ -95,6 +108,7 @@ architecture behaviour of caloscTest is
 	signal s_ADRmem : signed(31 downto 0);
 	signal s_D : signed(15 downto 0);
 	signal s_IR : signed (15 downto 0);
+	signal s_PORT : signed(15 downto 0);
 	
 	signal s_Salu : bit_vector (3 downto 0);
 	signal s_Sba : bit_vector (3 downto 0);
@@ -116,7 +130,17 @@ architecture behaviour of caloscTest is
 	signal s_INTA : bit;
 	signal s_MIO : bit;
 	
+	signal s_out_PORT0 : bit_vector (3 downto 0);
+	signal s_out_PORT1 : bit_vector (3 downto 0);
+	signal s_out_PORT2 : bit_vector (3 downto 0);
+	signal s_out_PORT3 : bit_vector (3 downto 0);
+	
 begin
+	
+	s_out_PORT0 <= to_bitvector(std_logic_vector(s_PORT(3 downto 0)));
+	s_out_PORT1 <= to_bitvector(std_logic_vector(s_PORT(7 downto 4)));
+	s_out_PORT2 <= to_bitvector(std_logic_vector(s_PORT(11 downto 8)));
+	s_out_PORT3 <= to_bitvector(std_logic_vector(s_PORT(15 downto 12)));
 	
 	GateCTRL : control 
 		port map ( 
@@ -194,5 +218,35 @@ begin
 			mRD => s_RDmem
 		);
 	
+	GatePORT : outPORT
+		port map (
+			D => s_D,
+			MIO => s_MIO,
+			outP => s_PORT
+		);
 	
+	GateHexPORT0 : dekoder
+		port map (
+			i => s_out_PORT0,
+			o => outputPORT0
+		);
+		
+	GateHexPORT1 : dekoder
+		port map (
+			i => s_out_PORT1,
+			o => outputPORT1
+		);
+	
+	GateHexPORT2 : dekoder
+		port map (
+			i => s_out_PORT2,
+			o => outputPORT2
+		);
+		
+	GateHexPORT3 : dekoder
+		port map (
+			i => s_out_PORT3,
+			o => outputPORT3
+		);
+		
 end behaviour;
