@@ -103,8 +103,8 @@ begin
 				if INT = '1' then state <= m9;
 				else state <= m0;
 				end if;
-			when m21 => state <= m22; --PUSH R (1/2)
-			when m22 => --PUSH R (2/2)
+			when m21 => state <= m22; --POP R (1/2)
+			when m22 => --POP R (2/2)
 				if INT = '1' then state <= m9;
 				else state <= m0;
 				end if;

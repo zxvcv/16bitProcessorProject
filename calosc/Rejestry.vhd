@@ -26,9 +26,9 @@ begin
 	process (clk, Sbb, Sbc, Sba, Sid, Sa, DI)
 			variable IR, TMP, A, B, C, D, E, F: signed (15 downto 0);
 			--variable AD, PC, SP, ATMP : signed (31 downto 0);
-			variable AD : signed (31 downto 0) := "00000000000000000000000000000000";
+			variable AD : signed (31 downto 0) := "00000000000000000000000000000110";
 			variable PC : signed (31 downto 0) := "00000000000000000000000000000000";
-			variable SP : signed (31 downto 0) := "00000000000000000000000000011110";
+			variable SP : signed (31 downto 0) := "00000000000000000000000000001011";
 			variable ATMP : signed (31 downto 0) := "00000000000000000000000000000000";
 		begin
 			if (clk'event and clk='1') then
